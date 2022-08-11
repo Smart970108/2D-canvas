@@ -1,4 +1,4 @@
-# simple-react-socket.io-example
+# 2Dcanvas
 
 ## Intro
 A super simple example of how to implement socket.io with React (CRA) and Node.

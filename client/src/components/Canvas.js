@@ -6,7 +6,7 @@ const Canvas = ({ draw, height, width }) => {
 
   React.useEffect(() => {
     const context = canvas.current.getContext("2d");
-    context.clearRect(0,0,500,500);
+    context.clearRect(0,0,500,2000);
     draw(context);
   });
 

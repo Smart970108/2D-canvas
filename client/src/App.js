@@ -5,27 +5,27 @@ import Canvas from "./components/Canvas"; // Change the path according to the di
 // storing socket connection in this global variable
 let socket = null;
 
-function plusXPositionUpdate() {
+function plusXPointUpdate() {
   // we emit this event that increments the count on the server
   // and the updated count is emitted back via 'counter updated'
   socket.emit('plus clicked');
 }
-function minusXPositionUpdate(){
+function minusXPointUpdate(){
   // we emit this event that increments the count on the server
   // and the updated count is emitted back via 'counter updated'
   socket.emit('minus clicked');
 }
 
 function App() {
-  const [pointX, setCount] = useState(0);
+  const [current, setCurrent] = useState(0);
 
   const draw = (context) => {
 
     //context.fillStyle = "rgb(200, 0, 0)";
     //context.fillRect(10, 10, 50, 50);
   
-    context.fillStyle = "rgba(0, 0, 200, 0.5)";
-    context.fillRect(pointX, 50, 50, 50);
+    context.fillStyle = "rgba("+ current.red +","+ current.green + "," + current.blue +", 0.5)";
+    context.fillRect(current.x, 50, 50, 50);
   };
 
   // after component mount...
@@ -36,23 +36,25 @@ function App() {
     // when connected, look for when the server emits the updated count
     socket.on('plus counter updated', function(countFromServer) {
       // set the new count on the client
-      setCount(countFromServer);
+      setCurrent(countFromServer);
+      console.log(countFromServer);
     })
     
     socket.on('minus counter updated', function(countFromServer) {
       // set the new count on the client
-      setCount(countFromServer);
+      setCurrent(countFromServer);
+      console.log(countFromServer);
     })
 
   }, []);
   return (
     <div>
       <div>
-        <Canvas draw={draw} height={500} width={500} />
+        <Canvas draw={draw} height={200} width={1000} />
       </div>
       <div>
-        <button onClick={plusXPositionUpdate}>xPoint+: {pointX}</button>
-        <button onClick={minusXPositionUpdate}>xPoint-: {pointX}</button>
+        <button onClick={plusXPointUpdate}>xPoint+: {current.x}</button>
+        <button onClick={minusXPointUpdate}>xPoint-: {current.x}</button>
       </div>
     </div>
   );

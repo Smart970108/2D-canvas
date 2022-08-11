@@ -1,24 +1,41 @@
 const io = require('socket.io')(5000);
 
 // the xPoint state
-let xPoint = 0;
+let current = {
+  x:0,
+  red:0,
+  green:0,
+  blue:0
+};
 
 io.on('connect', function(socket) {
   // emit to the newly connected client the existing xPoint 
-  socket.emit('counter updated', xPoint);
+  socket.emit('counter updated', current);
 
   // we listen for this event from the clients
   socket.on('plus clicked', () => {
     // increment the count
-    xPoint+=10;
-    // emit to EVERYONE the updated xPoint
-    io.emit('plus counter updated', xPoint);
+    for (let index = 0; index < 1000; index++) {
+      // emit to EVERYONE the updated xPoint
+      current.x += 0.05;
+      current.red = Math.floor(Math.random() * 200) + 1;
+      current.green = Math.floor(Math.random() * 200) + 1;
+      current.blue = Math.floor(Math.random() * 200) + 1;
+      io.emit('plus counter updated', current);
+    }
   });
 
   socket.on('minus clicked', () => {
     // increment the xPoint
-    xPoint-=10;
+    for (let index = 0; index < 1000; index++) {
+      // emit to EVERYONE the updated xPoint
+      current.x -= 0.05;
+      current.red = Math.floor(Math.random() * 200) + 1;
+      current.green = Math.floor(Math.random() * 200) + 1;
+      current.blue = Math.floor(Math.random() * 200) + 1;
+      io.emit('minus counter updated', current);
+    }
     // emit to EVERYONE the updated count
-    io.emit('minus counter updated', xPoint);
+    
   });
 });
