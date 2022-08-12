@@ -1,31 +1,43 @@
-import React, {useState, useEffect} from 'react';
-import io from 'socket.io-client'; 
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 import Canvas from "./components/Canvas"; // Change the path according to the directory structure of your project
 
+import './styles.css';
+
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 // storing socket connection in this global variable
 let socket = null;
 
-function plusXPointUpdate() {
+function start() {
   // we emit this event that increments the count on the server
   // and the updated count is emitted back via 'counter updated'
-  socket.emit('plus clicked');
+  socket.emit('start clicked');
 }
-function minusXPointUpdate(){
-  // we emit this event that increments the count on the server
-  // and the updated count is emitted back via 'counter updated'
-  socket.emit('minus clicked');
+function onChange(newValue) {
+  socket.emit('getEditor', newValue);
 }
 
 function App() {
-  const [current, setCurrent] = useState(0);
+  const [position, setPosition] = useState();
+  const [current, setCurrent] = useState();
 
   const draw = (context) => {
+    if (!current || !position) return;
+    console.log("draw", current, position)
 
-    //context.fillStyle = "rgb(200, 0, 0)";
-    //context.fillRect(10, 10, 50, 50);
-  
-    context.fillStyle = "rgba("+ current.red +","+ current.green + "," + current.blue +", 0.5)";
-    context.fillRect(current.x, 50, 50, 50);
+    var imgData = context.createImageData(position.x1, position.y1);
+
+    for (let i = 0; i < current.length; i += 4) {
+      imgData.data[i + 0] = current[i].red;
+      imgData.data[i + 1] = current[i].green;
+      imgData.data[i + 2] = current[i].blue;
+      imgData.data[i + 3] = 100;
+    }
+    context.putImageData(imgData, position.x2, position.y2);
   };
 
   // after component mount...
@@ -34,27 +46,30 @@ function App() {
     socket = io('ws://localhost:5000');
 
     // when connected, look for when the server emits the updated count
-    socket.on('plus counter updated', function(countFromServer) {
+    socket.on('start updated', function (data) {
       // set the new count on the client
-      setCurrent(countFromServer);
-      console.log(countFromServer);
-    })
-    
-    socket.on('minus counter updated', function(countFromServer) {
-      // set the new count on the client
-      setCurrent(countFromServer);
-      console.log(countFromServer);
+      setCurrent(data.current);
+      setPosition(data.position)
     })
 
   }, []);
   return (
     <div>
       <div>
-        <Canvas draw={draw} height={200} width={1000} />
+        <Canvas draw={draw} height={250} width={1000} />
       </div>
       <div>
-        <button onClick={plusXPointUpdate}>xPoint+: {current.x}</button>
-        <button onClick={minusXPointUpdate}>xPoint-: {current.x}</button>
+        <button onClick={start} className='button'>Start</button>
+      </div>
+      <div>
+        <AceEditor
+          className='box'
+          mode="java"
+          theme="github"
+          onChange={onChange}
+          name="UNIQUE_ID_OF_DIV"
+          editorProps={{ $blockScrolling: true }}
+        />
       </div>
     </div>
   );
